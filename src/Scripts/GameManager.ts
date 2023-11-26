@@ -1,6 +1,8 @@
 import { isContext } from "vm";
 import MainScene from "../Scenes/MainScene";
 import { cardType } from "../Types/cardType";
+import { showPositiveFeedback } from "../Alerts/Feedback/positiveFeedback";
+import { showNegativeFeedback } from "../Alerts/Feedback/negativeFeedback";
 
 export class GameManager {
   sceneManager: MainScene;
@@ -9,11 +11,22 @@ export class GameManager {
   canMove: boolean = true;
   numOfMatched: number = 0;
   turns: number = 6;
+  cardNumber = 6;
   gameBoardCards!: cardType[];
   cardBackDefault = "symbol_0.png";
+  turnsText: Phaser.GameObjects.Text | undefined;
 
   constructor(scene: MainScene) {
     this.sceneManager = scene;
+    this.turnsText = this.sceneManager.add.text(
+      200,
+      16,
+      "Turns left:" + this.turns,
+      {
+        fontSize: "18px",
+        color: "white",
+      },
+    );
     this.gameBoardCards = [];
     // Initialize game state
     this.initGame();
@@ -47,6 +60,11 @@ export class GameManager {
   }
 
   initGame() {
+    this.numOfMatched = 0;
+    this.turns = 6;
+    this.canMove = true;
+    this.chosenCards.length = 0;
+
     this.gameBoard = this.getBoard(4, 3, 6);
     console.log("Generated Board:", this.gameBoard);
     // @ts-ignore
@@ -84,7 +102,11 @@ export class GameManager {
   handleCardClick(index: number) {
     let currentCard = this.gameBoardCards[index];
 
-    if (!this.canMove || currentCard.matchCard) {
+    if (
+      !this.canMove ||
+      currentCard.matchCard ||
+      this.chosenCards.includes(currentCard)
+    ) {
       return;
     }
 
@@ -107,7 +129,7 @@ export class GameManager {
 
       if (g1 == g2) {
         // match
-        alert("match!");
+        showPositiveFeedback();
         this.chosenCards[0].matchCard = true;
         this.chosenCards[1].matchCard = true;
         this.chosenCards.length = 0;
@@ -115,6 +137,7 @@ export class GameManager {
         this.canMove = true;
       } else {
         // no match
+        showNegativeFeedback();
         this.sceneManager.time.addEvent({
           delay: 1500,
           callbackScope: this,
@@ -131,7 +154,24 @@ export class GameManager {
           },
         });
         this.turns--;
+        this.updateTurnsText();
       }
+    }
+
+    if (this.numOfMatched == this.cardNumber || this.turns === 0) {
+      if (this.numOfMatched == this.cardNumber) {
+        alert("Game won");
+      }
+      if (this.turns === 0) {
+        alert("Game lost");
+      }
+      this.initGame();
+    }
+  }
+
+  updateTurnsText() {
+    if (this.turnsText) {
+      this.turnsText.setText(`Turns left: ${this.turns}`);
     }
   }
 }
