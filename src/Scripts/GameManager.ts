@@ -126,6 +126,9 @@ export class GameManager {
     if (this.chosenCards.length > 1) {
       this.canMove = false;
 
+      console.log(this.chosenCards[0]);
+      console.log(this.chosenCards[1]);
+
       // compare the card values
       let g1 = this.chosenCards[0].cardValue;
       let g2 = this.chosenCards[1].cardValue;
@@ -162,7 +165,7 @@ export class GameManager {
     }
 
     if (this.numOfMatched == this.cardNumber || this.turns === 0) {
-      const restartGame = () => this.initGame();
+      const restartGame = () => this.sceneManager.scene.restart();
 
       if (this.numOfMatched == this.cardNumber) {
         endGameState(restartGame, true);
