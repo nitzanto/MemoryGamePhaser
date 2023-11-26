@@ -10,7 +10,7 @@ export class GameManager {
   chosenCards: cardType[] = [];
   canMove: boolean = true;
   numOfMatched: number = 0;
-  turns: number = 1;
+  turns: number = 6;
   cardNumber = 6;
   gameBoardCards!: cardType[];
   cardBackDefault = "symbol_0.png";
@@ -60,7 +60,7 @@ export class GameManager {
   }
 
   initGame() {
-    this.turns = 1;
+    this.turns = 6;
     this.updateTurnsText();
     this.numOfMatched = 0;
     this.canMove = true;
@@ -94,10 +94,16 @@ export class GameManager {
 
   setCardListeners() {
     for (let i = 0; i < this.gameBoardCards.length; i++) {
+      this.gameBoardCards[i].cardObject.off("pointerdown"); // Remove existing listeners
       this.gameBoardCards[i].cardObject.on("pointerdown", (pointer: any) =>
         this.handleCardClick(i),
       );
     }
+  }
+
+  // Call this function whenever you need to update the card listeners, like after swapping
+  updateCardListeners() {
+    this.setCardListeners();
   }
 
   handleCardClick(index: number) {
@@ -134,6 +140,7 @@ export class GameManager {
         showPositiveFeedback();
         this.chosenCards[0].matchCard = true;
         this.chosenCards[1].matchCard = true;
+        this.shuffleCards();
         this.chosenCards.length = 0;
         this.numOfMatched++;
         this.canMove = true;
@@ -178,5 +185,50 @@ export class GameManager {
 
   isGameOver() {
     return this.numOfMatched === this.cardNumber || this.turns === 0;
+  }
+
+  shuffleCards() {
+    const unchosenCards = this.gameBoardCards.filter(
+      (card) => !this.chosenCards.includes(card) && !card.matchCard,
+    );
+
+    if (unchosenCards.length >= 2) {
+      const [card1, card2] = Phaser.Math.RND.shuffle(unchosenCards).slice(0, 2);
+
+      // Swap the cards visually and logically
+      this.swapCards(card1, card2);
+    }
+  }
+
+  swapCards(card1: cardType, card2: cardType) {
+    // Swap logical positions
+    const index1 = this.gameBoardCards.indexOf(card1);
+    const index2 = this.gameBoardCards.indexOf(card2);
+    [this.gameBoardCards[index1], this.gameBoardCards[index2]] = [
+      this.gameBoardCards[index2],
+      this.gameBoardCards[index1],
+    ];
+
+    // Swap visual positions
+    const tempX = card1.cardObject.x;
+    const tempY = card1.cardObject.y;
+
+    this.sceneManager.tweens.add({
+      targets: card1.cardObject,
+      x: card2.cardObject.x,
+      y: card2.cardObject.y,
+      duration: 500,
+      ease: "Linear",
+    });
+
+    this.sceneManager.tweens.add({
+      targets: card2.cardObject,
+      x: tempX,
+      y: tempY,
+      duration: 500,
+      ease: "Linear",
+    });
+
+    this.updateCardListeners();
   }
 }

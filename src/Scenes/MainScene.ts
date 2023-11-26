@@ -205,11 +205,11 @@ export default class MainScene extends Phaser.Scene {
     });
 
     this.textTime = this.add.text(
-      16,
+      400,
       16,
       `Remaining Time: ${this.remainingTimeBySeconds}s`,
       {
-        fontSize: "32px",
+        fontSize: "18px",
       },
     );
   }
