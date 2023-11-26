@@ -3,7 +3,6 @@ import MainScene from "../Scenes/MainScene";
 import { cardType } from "../Types/cardType";
 import { showPositiveFeedback } from "../Alerts/Feedback/positiveFeedback";
 import { showNegativeFeedback } from "../Alerts/Feedback/negativeFeedback";
-import { endGameState } from "../Alerts/GameState/endGameState";
 
 export class GameManager {
   sceneManager: MainScene;
@@ -11,7 +10,7 @@ export class GameManager {
   chosenCards: cardType[] = [];
   canMove: boolean = true;
   numOfMatched: number = 0;
-  turns: number = 6;
+  turns: number = 1;
   cardNumber = 6;
   gameBoardCards!: cardType[];
   cardBackDefault = "symbol_0.png";
@@ -61,7 +60,7 @@ export class GameManager {
   }
 
   initGame() {
-    this.turns = 6;
+    this.turns = 1;
     this.updateTurnsText();
     this.numOfMatched = 0;
     this.canMove = true;
@@ -126,9 +125,6 @@ export class GameManager {
     if (this.chosenCards.length > 1) {
       this.canMove = false;
 
-      console.log(this.chosenCards[0]);
-      console.log(this.chosenCards[1]);
-
       // compare the card values
       let g1 = this.chosenCards[0].cardValue;
       let g2 = this.chosenCards[1].cardValue;
@@ -165,13 +161,11 @@ export class GameManager {
     }
 
     if (this.numOfMatched == this.cardNumber || this.turns === 0) {
-      const restartGame = () => this.sceneManager.scene.restart();
-
       if (this.numOfMatched == this.cardNumber) {
-        endGameState(restartGame, true);
+        this.sceneManager.gameOver(true);
       }
       if (this.turns === 0) {
-        endGameState(restartGame, false);
+        this.sceneManager.gameOver(false);
       }
     }
   }

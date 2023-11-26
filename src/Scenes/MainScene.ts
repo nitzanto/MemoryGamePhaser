@@ -2,6 +2,8 @@
 // / <reference path="../../node_modules/phaser/types/phaser.d.ts"/>
 /* START OF COMPILED CODE */
 
+import { endGameState } from "../Alerts/GameState/endGameState";
+
 export default class MainScene extends Phaser.Scene {
   constructor() {
     super("MainScene");
@@ -136,6 +138,9 @@ export default class MainScene extends Phaser.Scene {
   private symbol2: Phaser.GameObjects.Sprite | undefined;
   private symbol1: Phaser.GameObjects.Sprite | undefined;
   private symbol0: Phaser.GameObjects.Sprite | undefined;
+  private timedEvent!: Phaser.Time.TimerEvent;
+  private textTime!: Phaser.GameObjects.Text;
+  private remainingTimeBySeconds!: number;
 
   /* START-USER-CODE */
 
@@ -175,6 +180,7 @@ export default class MainScene extends Phaser.Scene {
 
   create() {
     this.editorCreate();
+    this.remainingTimeBySeconds = 60;
     this.game.events.emit("GameCreated");
     const startText = this.add.text(
       this.cameras.main.width / 2,
@@ -194,8 +200,44 @@ export default class MainScene extends Phaser.Scene {
       delay: 2000,
       onComplete: () => {
         startText.destroy();
+        this.startTimer(this.remainingTimeBySeconds); // Start the timer after the start text fades out
       },
     });
+
+    this.textTime = this.add.text(
+      16,
+      16,
+      `Remaining Time: ${this.remainingTimeBySeconds}s`,
+      {
+        fontSize: "32px",
+      },
+    );
+  }
+
+  startTimer(durationSeconds: number) {
+    this.timedEvent = this.time.addEvent({
+      delay: 1000,
+      repeat: durationSeconds - 1,
+      callback: () => this.updateTimer(),
+    });
+  }
+
+  updateTimer() {
+    this.remainingTimeBySeconds--;
+    this.textTime.setText(`Remaining Time: ${this.remainingTimeBySeconds}s`);
+
+    if (this.remainingTimeBySeconds <= 0) {
+      this.gameOver(false);
+    }
+  }
+
+  gameOver(isWin: boolean) {
+    endGameState(() => this.restartGame(), isWin);
+  }
+
+  restartGame() {
+    this.timedEvent.remove();
+    this.scene.restart();
   }
 
   /* END-USER-CODE */
