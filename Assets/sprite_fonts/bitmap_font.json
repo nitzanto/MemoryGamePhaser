@@ -1,0 +1,41 @@
+{
+	"textures": [
+		{
+			"image": "bitmap_font.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 940,
+				"h": 940
+			},
+			"scale": 0.5,
+			"frames": [
+				{
+					"filename": "SpriteFont_CyrillicOld_Bold_(120)_[15,15,15,15]_149x179.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1024,
+						"h": 1024
+					},
+					"spriteSourceSize": {
+						"x": 7,
+						"y": 22,
+						"w": 938,
+						"h": 583
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 938,
+						"h": 583
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:3db40fad84bd9e5299ff122b86c14ab6:0d53233809f96a655ea1fa017444d553:f06baf3dba7f53519871c3d6e7bdcb4a$"
+	}
+}

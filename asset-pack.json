@@ -1,0 +1,24 @@
+{
+    "section1": {
+        "files": [
+            {
+                "url": "Assets/bg/bg.jpg",
+                "type": "image",
+                "key": "bg"
+            },
+            {
+                "textureURL": "Assets/sprite_fonts/win_font.png",
+                "fontDataURL": "Assets/sprite_fonts/win_font.xml",
+                "type": "bitmapFont",
+                "key": "win_font"
+            }
+        ]
+    },
+    "meta": {
+        "app": "Phaser Editor 2D - Asset Pack Editor",
+        "contentType": "phasereditor2d.pack.core.AssetContentType",
+        "url": "https://phasereditor2d.com",
+        "version": 2,
+        "showAllFilesInBlocks": true
+    }
+}
