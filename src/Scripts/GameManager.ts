@@ -11,7 +11,7 @@ export class GameManager {
   chosenCards: cardType[] = [];
   canMove: boolean = true;
   numOfMatched: number = 0;
-  turns: number = 1;
+  turns: number = 6;
   cardNumber = 6;
   gameBoardCards!: cardType[];
   cardBackDefault = "symbol_0.png";
@@ -61,14 +61,14 @@ export class GameManager {
   }
 
   initGame() {
-    this.turns = 1;
+    this.turns = 6;
     this.updateTurnsText();
     this.numOfMatched = 0;
     this.canMove = true;
     this.chosenCards.length = 0;
 
     this.gameBoard = this.getBoard(4, 3, 6);
-    console.log("Generated Board:", this.gameBoard);
+
     // @ts-ignore
     let symbolsArr: Phaser.GameObjects.Sprite[] =
       this.sceneManager.symbolsArr();
