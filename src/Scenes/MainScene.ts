@@ -176,6 +176,26 @@ export default class MainScene extends Phaser.Scene {
   create() {
     this.editorCreate();
     this.game.events.emit("GameCreated");
+    const startText = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      "Start!",
+      {
+        fontSize: "48px",
+      },
+    );
+    startText.setOrigin(0.5);
+
+    // Fade out the text after a delay
+    this.tweens.add({
+      targets: startText,
+      alpha: 0,
+      duration: 1000,
+      delay: 2000,
+      onComplete: () => {
+        startText.destroy();
+      },
+    });
   }
 
   /* END-USER-CODE */
