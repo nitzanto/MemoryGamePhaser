@@ -116,7 +116,7 @@ export class GameManager {
       } else {
         // no match
         this.sceneManager.time.addEvent({
-          delay: 2000,
+          delay: 1500,
           callbackScope: this,
           callback: () => {
             for (let n = 0; n < this.chosenCards.length; n++) {
