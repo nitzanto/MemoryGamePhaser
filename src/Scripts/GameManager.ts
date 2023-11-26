@@ -108,6 +108,8 @@ export class GameManager {
       if (g1 == g2) {
         // match
         alert("match!");
+        this.chosenCards[0].matchCard = true;
+        this.chosenCards[1].matchCard = true;
         this.chosenCards.length = 0;
         this.numOfMatched++;
         this.canMove = true;
