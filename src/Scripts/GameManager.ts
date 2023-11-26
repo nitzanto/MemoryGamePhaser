@@ -3,6 +3,7 @@ import MainScene from "../Scenes/MainScene";
 import { cardType } from "../Types/cardType";
 import { showPositiveFeedback } from "../Alerts/Feedback/positiveFeedback";
 import { showNegativeFeedback } from "../Alerts/Feedback/negativeFeedback";
+import { endGameState } from "../Alerts/GameState/endGameState";
 
 export class GameManager {
   sceneManager: MainScene;
@@ -10,7 +11,7 @@ export class GameManager {
   chosenCards: cardType[] = [];
   canMove: boolean = true;
   numOfMatched: number = 0;
-  turns: number = 6;
+  turns: number = 1;
   cardNumber = 6;
   gameBoardCards!: cardType[];
   cardBackDefault = "symbol_0.png";
@@ -60,8 +61,9 @@ export class GameManager {
   }
 
   initGame() {
+    this.turns = 1;
+    this.updateTurnsText();
     this.numOfMatched = 0;
-    this.turns = 6;
     this.canMove = true;
     this.chosenCards.length = 0;
 
@@ -105,7 +107,8 @@ export class GameManager {
     if (
       !this.canMove ||
       currentCard.matchCard ||
-      this.chosenCards.includes(currentCard)
+      this.chosenCards.includes(currentCard) ||
+      this.isGameOver()
     ) {
       return;
     }
@@ -159,13 +162,14 @@ export class GameManager {
     }
 
     if (this.numOfMatched == this.cardNumber || this.turns === 0) {
+      const restartGame = () => this.initGame();
+
       if (this.numOfMatched == this.cardNumber) {
-        alert("Game won");
+        endGameState(restartGame, true);
       }
       if (this.turns === 0) {
-        alert("Game lost");
+        endGameState(restartGame, false);
       }
-      this.initGame();
     }
   }
 
@@ -173,5 +177,9 @@ export class GameManager {
     if (this.turnsText) {
       this.turnsText.setText(`Turns left: ${this.turns}`);
     }
+  }
+
+  isGameOver() {
+    return this.numOfMatched === this.cardNumber || this.turns === 0;
   }
 }

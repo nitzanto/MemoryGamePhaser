@@ -16,5 +16,7 @@ export const showPositiveFeedback = () => {
     text: message,
     timer: 2000,
     showConfirmButton: false,
+    allowOutsideClick: false,
+    allowEscapeKey: false,
   });
 };
