@@ -1,16 +1,20 @@
 import { isContext } from "vm";
 import MainScene from "../Scenes/MainScene";
-import { cardType } from "../Types/cardType";
-import { showPositiveFeedback } from "../Alerts/Feedback/positiveFeedback";
-import { showNegativeFeedback } from "../Alerts/Feedback/negativeFeedback";
+import { cardType } from "../libs/common/Types/cardType";
+import { showPositiveFeedback } from "../libs/common/Alerts/Feedback/positiveFeedback";
+import { showNegativeFeedback } from "../libs/common/Alerts/Feedback/negativeFeedback";
+import {
+  MAX_SELECTED_CARDS,
+  TURNS_PER_ROUND,
+} from "../libs/common/Constants/MemoryGame";
+import { GameManager } from "../libs/common/Interfaces/GameManager";
 
-export class GameManager {
+export class MemoryGameManager implements GameManager {
   sceneManager: MainScene;
   gameBoard!: string[];
   chosenCards: cardType[] = [];
-  canMove: boolean = true;
   numOfMatched: number = 0;
-  turns: number = 6;
+  turns: number = TURNS_PER_ROUND;
   cardNumber = 6;
   gameBoardCards!: cardType[];
   cardBackDefault = "symbol_0.png";
@@ -60,10 +64,9 @@ export class GameManager {
   }
 
   initGame() {
-    this.turns = 6;
+    this.turns = TURNS_PER_ROUND;
     this.updateTurnsText();
     this.numOfMatched = 0;
-    this.canMove = true;
     this.chosenCards.length = 0;
 
     this.gameBoard = this.getBoard(4, 3, 6);
@@ -110,7 +113,7 @@ export class GameManager {
     let currentCard = this.gameBoardCards[index];
 
     if (
-      !this.canMove ||
+      this.chosenCards.length == MAX_SELECTED_CARDS ||
       currentCard.matchCard ||
       this.chosenCards.includes(currentCard) ||
       this.isGameOver()
@@ -120,60 +123,68 @@ export class GameManager {
 
     currentCard.cardObject.setTexture("symbols", currentCard.cardValue);
 
-    let obj: cardType = this.gameBoardCards[index];
+    let selectedCard: cardType = this.gameBoardCards[index];
 
-    // make the cardBackSprite of the selected object transparent
-    obj.cardSelected = true;
+    selectedCard.cardSelected = true;
 
-    // save the selected object
-    this.chosenCards.push(obj);
+    this.chosenCards.push(selectedCard);
 
-    if (this.chosenCards.length > 1) {
-      this.canMove = false;
-
-      // compare the card values
-      let g1 = this.chosenCards[0].cardValue;
-      let g2 = this.chosenCards[1].cardValue;
-
-      if (g1 == g2) {
-        // match
-        showPositiveFeedback();
-        this.chosenCards[0].matchCard = true;
-        this.chosenCards[1].matchCard = true;
-        this.shuffleCards();
-        this.chosenCards.length = 0;
-        this.numOfMatched++;
-        this.canMove = true;
-      } else {
-        // no match
-        showNegativeFeedback();
-        this.sceneManager.time.addEvent({
-          delay: 1500,
-          callbackScope: this,
-          callback: () => {
-            for (let n = 0; n < this.chosenCards.length; n++) {
-              this.chosenCards[n].cardSelected = false;
-              this.chosenCards[n].cardObject.setTexture(
-                "symbols",
-                this.cardBackDefault,
-              );
-            }
-            this.chosenCards.length = 0;
-            this.canMove = true;
-          },
-        });
-        this.turns--;
-        this.updateTurnsText();
-      }
+    if (this.chosenCards.length == MAX_SELECTED_CARDS) {
+      this.compareSelectedCards();
     }
 
     if (this.numOfMatched == this.cardNumber || this.turns === 0) {
-      if (this.numOfMatched == this.cardNumber) {
-        this.sceneManager.gameOver(true);
-      }
-      if (this.turns === 0) {
-        this.sceneManager.gameOver(false);
-      }
+      this.handleGameEnd();
+    }
+  }
+
+  compareSelectedCards(): void {
+    let value1 = this.chosenCards[0].cardValue;
+    let value2 = this.chosenCards[1].cardValue;
+
+    if (value1 === value2) {
+      this.handleMatchedCards();
+    } else {
+      this.handleMismatchedCards();
+    }
+  }
+
+  handleMatchedCards() {
+    showPositiveFeedback();
+    this.chosenCards[0].matchCard = true;
+    this.chosenCards[1].matchCard = true;
+    this.shuffleCards();
+    this.chosenCards.length = 0;
+    this.numOfMatched++;
+  }
+
+  handleMismatchedCards() {
+    showNegativeFeedback();
+    this.sceneManager.time.addEvent({
+      delay: 1500,
+      callbackScope: this,
+      callback: () => {
+        for (let n = 0; n < this.chosenCards.length; n++) {
+          this.chosenCards[n].cardSelected = false;
+          this.chosenCards[n].cardObject.setTexture(
+            "symbols",
+            this.cardBackDefault,
+          );
+        }
+        this.chosenCards.length = 0;
+      },
+    });
+    this.turns--;
+    this.updateTurnsText();
+  }
+
+  handleGameEnd() {
+    this.sceneManager.stopTimer();
+    if (this.numOfMatched === this.cardNumber) {
+      this.sceneManager.gameOver(true);
+    }
+    if (this.turns === 0) {
+      this.sceneManager.gameOver(false);
     }
   }
 

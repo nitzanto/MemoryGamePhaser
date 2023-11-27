@@ -2,7 +2,7 @@
 // / <reference path="../../node_modules/phaser/types/phaser.d.ts"/>
 /* START OF COMPILED CODE */
 
-import { endGameState } from "../Alerts/GameState/endGameState";
+import { endGameState } from "../libs/common/Alerts/GameState/endGameState";
 
 export default class MainScene extends Phaser.Scene {
   constructor() {
@@ -236,8 +236,12 @@ export default class MainScene extends Phaser.Scene {
   }
 
   restartGame() {
-    this.timedEvent.remove();
+    this.stopTimer();
     this.scene.restart();
+  }
+
+  stopTimer() {
+    this.timedEvent.remove();
   }
 
   /* END-USER-CODE */

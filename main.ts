@@ -1,4 +1,4 @@
-import { GameManager } from "./src/Scripts/GameManager";
+import { MemoryGameManager } from "./src/Scripts/MemoryGameManager";
 import MainScene from "./src/Scenes/MainScene";
 
 var config = {
@@ -12,5 +12,5 @@ const game = new Phaser.Game(config);
 
 game.events.on("GameCreated", () => {
   // @ts-ignore
-  new GameManager(game.scene.scenes[0]);
+  new MemoryGameManager(game.scene.scenes[0]);
 });
