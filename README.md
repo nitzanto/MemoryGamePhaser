@@ -8,7 +8,7 @@ A memory game created with the phaser engine
 <p>To run this project locally, follow these steps:</p>
 
 <ol>
-    <li>Navigate to the project directory:</li>
+    Navigate to the project directory
     <pre><code>cd your-repository</code></pre>
     <pre><code>npm install</code></pre>
     <pre><code>npm run dev</code></pre>
