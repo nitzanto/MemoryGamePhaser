@@ -1,5 +1,9 @@
 export interface GameManager {
   initGame(): void;
 
-  generateGameBoard(): () => string[];
+  generateGameBoard(
+    rows: number,
+    columns: number,
+    numCards: number,
+  ): () => string[];
 }
