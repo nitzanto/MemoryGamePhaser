@@ -3,6 +3,7 @@
 /* START OF COMPILED CODE */
 
 import { endGameState } from "../libs/common/Alerts/GameState/endGameState";
+import { GAME_TIME } from "../libs/common/Constants/MemoryGame";
 
 export default class MainScene extends Phaser.Scene {
   constructor() {
@@ -180,7 +181,7 @@ export default class MainScene extends Phaser.Scene {
 
   create() {
     this.editorCreate();
-    this.remainingTimeBySeconds = 60;
+    this.remainingTimeBySeconds = GAME_TIME;
     this.game.events.emit("GameCreated");
 
     this.createStartText();
