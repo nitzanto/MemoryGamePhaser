@@ -1,8 +1,5 @@
 import MainScene from "../Scenes/MainScene";
-import {
-  BACK_OF_CARD,
-  TURNS_PER_ROUND,
-} from "../libs/common/Constants/MemoryGame";
+import { BACK_OF_CARD } from "../libs/common/Constants/MemoryGame";
 import { GameManager } from "../libs/common/Interfaces/GameManager";
 import { Card } from "../libs/common/Classes/Card";
 import { CardManager } from "./CardsManager";
