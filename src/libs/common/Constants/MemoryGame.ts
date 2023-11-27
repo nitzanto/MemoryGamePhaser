@@ -6,4 +6,4 @@ export const BACK_OF_CARD: string = "symbol_0.png";
 
 export const NUMBER_OF_CARDS: number = 6;
 
-export const GAME_TIME: number = 2; // 1 minute
+export const GAME_TIME: number = 60; // 1 minute
