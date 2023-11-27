@@ -1,23 +1,23 @@
 import { isContext } from "vm";
 import MainScene from "../Scenes/MainScene";
-import { cardType } from "../libs/common/Types/cardType";
 import { showPositiveFeedback } from "../libs/common/Alerts/Feedback/positiveFeedback";
 import { showNegativeFeedback } from "../libs/common/Alerts/Feedback/negativeFeedback";
 import {
+  BACK_OF_CARD,
   MAX_SELECTED_CARDS,
   TURNS_PER_ROUND,
 } from "../libs/common/Constants/MemoryGame";
 import { GameManager } from "../libs/common/Interfaces/GameManager";
+import { Card } from "../libs/common/Classes/Card";
 
 export class MemoryGameManager implements GameManager {
   sceneManager: MainScene;
   gameBoard!: string[];
-  chosenCards: cardType[] = [];
+  chosenCards: Card[] = [];
   numOfMatched: number = 0;
   turns: number = TURNS_PER_ROUND;
   cardNumber = 6;
-  gameBoardCards!: cardType[];
-  cardBackDefault = "symbol_0.png";
+  cardsManager!: Card[];
   turnsText: Phaser.GameObjects.Text | undefined;
 
   constructor(scene: MainScene) {
@@ -31,7 +31,7 @@ export class MemoryGameManager implements GameManager {
         color: "white",
       },
     );
-    this.gameBoardCards = [];
+    this.cardsManager = [];
     // Initialize game state
     this.initGame();
   }
@@ -40,16 +40,13 @@ export class MemoryGameManager implements GameManager {
     if ((rows * columns) % 2 !== 0) return [];
 
     const totalCards = rows * columns;
-    const board: string[] = new Array(totalCards).fill("symbol_0.png");
+    const board: string[] = new Array(totalCards).fill(BACK_OF_CARD);
     let currentSymbolNumber = 2;
 
     for (let orderCount = 0; orderCount < totalCards; ) {
       let randomIndex = Math.floor(Math.random() * totalCards);
 
-      while (
-        board[randomIndex] !== "symbol_0.png" ||
-        randomIndex >= totalCards
-      ) {
+      while (board[randomIndex] !== BACK_OF_CARD || randomIndex >= totalCards) {
         randomIndex = randomIndex >= totalCards ? 0 : randomIndex + 1;
       }
 
@@ -78,50 +75,36 @@ export class MemoryGameManager implements GameManager {
 
     symbolsArr.forEach((card, index) => {
       const cardFileName = this.gameBoard[index];
-      this.gameBoardCards.push({
-        cardSelected: false,
-        cardObject: card,
-        cardValue: cardFileName,
-        matchCard: false,
-        cardBackSprite: "symbol_0.png",
-      });
-
-      this.gameBoardCards[index].cardObject.setInteractive();
-      this.gameBoardCards[index].cardObject.setTexture(
-        "symbols",
-        this.cardBackDefault,
-      );
+      const cardObject = new Card(card, cardFileName, BACK_OF_CARD);
+      this.cardsManager.push(cardObject);
     });
 
     this.setCardListeners();
   }
 
   setCardListeners() {
-    for (let i = 0; i < this.gameBoardCards.length; i++) {
-      this.gameBoardCards[i].cardObject.off("pointerdown"); // Remove existing listeners
-      this.gameBoardCards[i].cardObject.on("pointerdown", (pointer: any) =>
+    for (let i = 0; i < this.cardsManager.length; i++) {
+      this.cardsManager[i].cardObject.off("pointerdown"); // Remove existing listeners
+      this.cardsManager[i].cardObject.on("pointerdown", (pointer: any) =>
         this.handleCardClick(i),
       );
     }
   }
 
   handleCardClick(index: number) {
-    let currentCard = this.gameBoardCards[index];
+    let selectedCard = this.cardsManager[index];
 
     if (
       this.chosenCards.length == MAX_SELECTED_CARDS ||
-      currentCard.matchCard ||
-      this.chosenCards.includes(currentCard) ||
+      selectedCard.matchCard ||
+      this.chosenCards.includes(selectedCard) ||
       this.isGameOver()
     ) {
       return;
     }
 
-    currentCard.cardObject.setTexture("symbols", currentCard.cardValue);
-
-    let selectedCard: cardType = this.gameBoardCards[index];
-
-    selectedCard.cardSelected = true;
+    selectedCard.flipCard();
+    selectedCard.setSelected(true);
 
     this.chosenCards.push(selectedCard);
 
@@ -135,10 +118,10 @@ export class MemoryGameManager implements GameManager {
   }
 
   compareSelectedCards(): void {
-    let value1 = this.chosenCards[0].cardValue;
-    let value2 = this.chosenCards[1].cardValue;
+    let card1 = this.chosenCards[0].cardValue;
+    let card2 = this.chosenCards[1].cardValue;
 
-    if (value1 === value2) {
+    if (card1 === card2) {
       this.handleMatchedCards();
     } else {
       this.handleMismatchedCards();
@@ -147,8 +130,8 @@ export class MemoryGameManager implements GameManager {
 
   handleMatchedCards() {
     showPositiveFeedback();
-    this.chosenCards[0].matchCard = true;
-    this.chosenCards[1].matchCard = true;
+    this.chosenCards[0].setMatched(true);
+    this.chosenCards[1].setSelected(true);
     this.shuffleCards();
     this.chosenCards.length = 0;
     this.numOfMatched++;
@@ -160,12 +143,9 @@ export class MemoryGameManager implements GameManager {
       delay: 1500,
       callbackScope: this,
       callback: () => {
-        for (let n = 0; n < this.chosenCards.length; n++) {
-          this.chosenCards[n].cardSelected = false;
-          this.chosenCards[n].cardObject.setTexture(
-            "symbols",
-            this.cardBackDefault,
-          );
+        for (let index = 0; index < this.chosenCards.length; index++) {
+          this.chosenCards[index].setSelected(false);
+          this.chosenCards[index].resetCard();
         }
         this.chosenCards.length = 0;
       },
@@ -195,7 +175,7 @@ export class MemoryGameManager implements GameManager {
   }
 
   shuffleCards() {
-    const unchosenCards = this.gameBoardCards.filter(
+    const unchosenCards = this.cardsManager.filter(
       (card) => !this.chosenCards.includes(card) && !card.matchCard,
     );
 
@@ -207,13 +187,13 @@ export class MemoryGameManager implements GameManager {
     }
   }
 
-  swapCards(card1: cardType, card2: cardType) {
+  swapCards(card1: Card, card2: Card) {
     // Swap logical positions
-    const index1 = this.gameBoardCards.indexOf(card1);
-    const index2 = this.gameBoardCards.indexOf(card2);
-    [this.gameBoardCards[index1], this.gameBoardCards[index2]] = [
-      this.gameBoardCards[index2],
-      this.gameBoardCards[index1],
+    const index1 = this.cardsManager.indexOf(card1);
+    const index2 = this.cardsManager.indexOf(card2);
+    [this.cardsManager[index1], this.cardsManager[index2]] = [
+      this.cardsManager[index2],
+      this.cardsManager[index1],
     ];
 
     // Swap visual positions
