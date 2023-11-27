@@ -1,5 +1,5 @@
 export interface GameManager {
   initGame(): void;
 
-  generateGameBoard(): void;
+  generateGameBoard(): string[];
 }
