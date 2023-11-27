@@ -36,28 +36,29 @@ export class MemoryGameManager implements GameManager {
     this.initGame();
   }
 
-  getBoard(n: number, m: number, numCards: number): string[] {
-    if (Math.floor((n * m) % 2) != 0) return [];
-    let board: string[] = [];
+  generateGameBoard(rows: number, columns: number, numCards: number): string[] {
+    if ((rows * columns) % 2 !== 0) return [];
 
-    const mn = n * m; // Length board
-    let numOfOrder = 0;
-    let i = 2; // Symbol number in floor(i/2)
-    for (let i = 0; i < mn; i++) {
-      board[i] = "symbol_0.png";
-    }
-    while (numOfOrder < m * n) {
-      // While not all the cards are selected
-      let rand = Math.floor(Math.random() * mn);
-      while (board[rand] != "symbol_0.png" || rand >= mn) {
-        // While the card not select rand++ [mod len]
-        if (rand >= mn) rand = 0;
-        else rand++;
+    const totalCards = rows * columns;
+    const board: string[] = new Array(totalCards).fill("symbol_0.png");
+    let currentSymbolNumber = 2;
+
+    for (let orderCount = 0; orderCount < totalCards; ) {
+      let randomIndex = Math.floor(Math.random() * totalCards);
+
+      while (
+        board[randomIndex] !== "symbol_0.png" ||
+        randomIndex >= totalCards
+      ) {
+        randomIndex = randomIndex >= totalCards ? 0 : randomIndex + 1;
       }
-      board[rand] = "symbol_" + Math.floor(i / 2) + ".png";
-      i++;
-      numOfOrder++;
-      if (numCards + 1 == Math.floor(i / 2)) i = 2;
+
+      board[randomIndex] = `symbol_${Math.floor(currentSymbolNumber / 2)}.png`;
+      currentSymbolNumber++;
+      orderCount++;
+
+      if (numCards + 1 === Math.floor(currentSymbolNumber / 2))
+        currentSymbolNumber = 2;
     }
 
     return board;
@@ -69,7 +70,7 @@ export class MemoryGameManager implements GameManager {
     this.numOfMatched = 0;
     this.chosenCards.length = 0;
 
-    this.gameBoard = this.getBoard(4, 3, 6);
+    this.gameBoard = this.generateGameBoard(4, 3, 6);
 
     // @ts-ignore
     let symbolsArr: Phaser.GameObjects.Sprite[] =
@@ -102,11 +103,6 @@ export class MemoryGameManager implements GameManager {
         this.handleCardClick(i),
       );
     }
-  }
-
-  // Call this function whenever you need to update the card listeners, like after swapping
-  updateCardListeners() {
-    this.setCardListeners();
   }
 
   handleCardClick(index: number) {
@@ -240,6 +236,6 @@ export class MemoryGameManager implements GameManager {
       ease: "Linear",
     });
 
-    this.updateCardListeners();
+    this.setCardListeners();
   }
 }

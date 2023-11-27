@@ -1,10 +1,13 @@
-import { cardType } from "./cardType";
+import { cardType } from "../Types/cardType";
 
 export interface GameManager {
   initGame(): void;
+
   updateTurnsText(): void;
+
   isGameOver(): boolean;
+
   shuffleCards(): void;
+
   swapCards(card1: cardType, card2: cardType): void;
-  // Add other necessary methods...
 }
