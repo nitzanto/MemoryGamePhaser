@@ -182,6 +182,12 @@ export default class MainScene extends Phaser.Scene {
     this.editorCreate();
     this.remainingTimeBySeconds = 60;
     this.game.events.emit("GameCreated");
+
+    this.createStartText();
+    this.createTimerText();
+  }
+
+  private createStartText() {
     const startText = this.add.text(
       this.cameras.main.width / 2,
       this.cameras.main.height / 2,
@@ -192,18 +198,27 @@ export default class MainScene extends Phaser.Scene {
     );
     startText.setOrigin(0.5);
 
-    // Fade out the text after a delay
+    this.fadeOutText(startText, 2000, () => {
+      startText.destroy();
+      this.startTimer(this.remainingTimeBySeconds);
+    });
+  }
+
+  private fadeOutText(
+    text: Phaser.GameObjects.Text,
+    delay: number,
+    onComplete: () => void,
+  ) {
     this.tweens.add({
-      targets: startText,
+      targets: text,
       alpha: 0,
       duration: 1000,
-      delay: 2000,
-      onComplete: () => {
-        startText.destroy();
-        this.startTimer(this.remainingTimeBySeconds); // Start the timer after the start text fades out
-      },
+      delay: delay,
+      onComplete: onComplete,
     });
+  }
 
+  private createTimerText() {
     this.textTime = this.add.text(
       400,
       16,
