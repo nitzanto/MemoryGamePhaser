@@ -5,7 +5,6 @@ import {
 } from "../libs/common/Constants/MemoryGame";
 import { GameManager } from "../libs/common/Interfaces/GameManager";
 import { Card } from "../libs/common/Classes/Card";
-import { textConfig } from "../libs/common/Constants/TextConfigMemoryGame";
 import { CardManager } from "./CardsManager";
 import { TurnManagement } from "./TurnManagement";
 
