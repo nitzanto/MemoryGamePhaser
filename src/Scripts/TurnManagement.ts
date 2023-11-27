@@ -19,8 +19,8 @@ export class TurnManagement {
   }
 
   public decrementTurns() {
-    this.updateTurnsText();
     this.turns--;
+    this.updateTurnsText();
   }
 
   public getTurns() {
